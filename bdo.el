@@ -32,8 +32,8 @@
 ;;   "Refresh the current CSS file."
 ;;   (interactive)
 ;;   (when (buffer-modified-p)
-;;     (save-buffer)
-;;     (bdo-refresh)))
+;;     (save-buffer))
+;;   (bdo-refresh))
 ;; 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -89,7 +89,8 @@ current buffer, tries to get from 'load-path."
          (process (bdo-client-process client))
          (link (and process (bdo-link))))
     (when (and process link)
-      (bdo--reply-plain (bdo-client-process client) link))))
+      (bdo--reply-plain (bdo-client-process client) link)
+      (message "Refreshed."))))
 
 (defun bdo-link ()
   "Get the current stylesheet."

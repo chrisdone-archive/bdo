@@ -19,8 +19,8 @@ Optional keybinding:
       "Refresh the current CSS file."
       (interactive)
       (when (buffer-modified-p)
-        (save-buffer)
-        (bdo-refresh)))
+        (save-buffer))
+      (bdo-refresh))
 
 To make Emacs start listening, run
 
