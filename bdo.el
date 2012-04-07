@@ -229,3 +229,5 @@ current buffer, tries to get from 'load-path."
     (if (not post-data)
         (error "Unable to parse post data from request.")
       (url-unhex-string (replace-regexp-in-string "+" "%20" post-data)))))
+
+(provide 'bdo)
