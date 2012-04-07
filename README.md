@@ -4,7 +4,11 @@ This library lets Emacs talk to a page in a web browser. For now, it's
 specifically aimed at telling the browser to update the stylesheet, in
 a similar fashion to Firefox's latest Style Editor.
 
-Video example: http://chrisdone.com/bdo.ogv
+Video examples
+
+* http://www.youtube.com/watch?v=JnImnaCkOMk
+
+* http://chrisdone.com/bdo.ogv
 
 # Usage
 
