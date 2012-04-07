@@ -30,6 +30,9 @@ Then add the following in your web page:
 
     <script type="text/javascript" src="http://localhost:9090/bdo"></script>
 
+The script depdends on jQuery. If that's a problem, you can hack
+around it and give me a patch.
+
 (Or whichever port you configured bdo-port to, if you changed it.)
 
 Load your web page, it will connect to Emacs. Emacs will say “New

@@ -73,7 +73,14 @@ current buffer, tries to get from 'load-path."
 (defun bdo-listen ()
   "Start the listener (or: make sure it's started)."
   (interactive)
-  (bdo--get-listener))
+  (bdo--get-listener)
+  (message "Listener started on port %d…" bdo-port))
+
+(defun bdo-stop ()
+  "Stop listening."
+  (interactive)
+  (delete-process (bdo--get-listener))
+  (message "Listener stopped."))
 
 (defun bdo-refresh (&optional href)
   "Refresh the current stylesheet."
