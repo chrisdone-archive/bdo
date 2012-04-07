@@ -76,6 +76,7 @@ current buffer, tries to get from 'load-path."
   (bdo--get-listener))
 
 (defun bdo-refresh (&optional href)
+  "Refresh the current stylesheet."
   (interactive)
   (let* ((client (bdo-client))
          (process (bdo-client-process client))
