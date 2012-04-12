@@ -96,21 +96,22 @@ current buffer, tries to get from 'load-path."
 
 (defun bdo-link ()
   "Get the current stylesheet."
-  (or (if (default-boundp 'bdo-link)
+  (or (if (boundp 'bdo-link)
           bdo-link
-        (setq bdo-link nil))
+        (set (make-local-variable 'bdo-link) nil))
       (bdo-set-link)))
 
 (defun bdo-set-link ()
   "Set the current stylesheet."
+  (interactive)
   (setq bdo-link
-        (ido-completing-read "Stylesheet: " (bdo-client-links client))))
+       (ido-completing-read "Stylesheet: " (bdo-client-links client))))
 
 (defun bdo-client ()
   "Get the current client."
-  (or (if (default-boundp 'bdo-client)
+  (or (if (boundp 'bdo-client)
           bdo-client
-        (setq bdo-client nil))
+        (set (make-local-variable 'bdo-client) nil))
       (bdo-set-client)))
 
 (defun bdo-set-client ()
