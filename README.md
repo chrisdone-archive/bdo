@@ -34,6 +34,9 @@ Then add the following in your web page:
 
     <script type="text/javascript" src="http://localhost:9090/bdo"></script>
 
+You can use a browser userscript to make your browser insert that line on the
+fly, on some webs. See contrib/bdo.user.js.
+
 The script depdends on jQuery. If that's a problem, you can hack
 around it and give me a patch.
 
@@ -56,4 +59,3 @@ bdo-refresh`.
 
 If you change your mind, you can run `M-x bdo-set-client` or
 `M-x bdo-set-link` to set the client or link element referred to.
-
