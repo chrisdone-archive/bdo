@@ -105,23 +105,23 @@ current buffer, tries to get from 'load-path."
   "Set the current stylesheet."
   (interactive)
   (setq bdo-link
-       (ido-completing-read "Stylesheet: " (bdo-client-links client))))
+        (ido-completing-read "Stylesheet: " (bdo-client-links (bdo-client)))))
 
 (defun bdo-client ()
   "Get the current client."
   (or (if (boundp 'bdo-client)
-          bdo-client
+          (find-if (lambda (client) (string= (bdo-client-id client) bdo-client))
+                   bdo--clients)
         (set (make-local-variable 'bdo-client) nil))
-      (bdo-set-client)))
+      (progn (bdo-set-client)
+             (bdo-client))))
 
 (defun bdo-set-client ()
   "Set the current client."
   (interactive)
   (if (consp bdo--clients)
       (let ((id (ido-completing-read "Client: " (mapcar 'bdo-client-id bdo--clients))))
-        (setq bdo-client
-              (find-if (lambda (client) (string= (bdo-client-id client) id))
-                       bdo--clients)))
+        (setq bdo-client id))
     (error "There are no current clients!")))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -154,7 +154,7 @@ current buffer, tries to get from 'load-path."
             (message "Client re-connected: %s" referer)
           (progn (add-to-list 'bdo--clients (bdo-client-make :id referer :process nil))
                  (message "New client: %s" referer))))
-       ((string= cmd "poll")
+       ((string-match "^poll" cmd)
         (let ((client (bdo--find-client referer)))
           (setf (bdo-client-process client) process)))
        ((string= cmd "links")

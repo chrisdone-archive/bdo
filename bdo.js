@@ -68,7 +68,7 @@ bdo.sexp = function(value){
  */
 bdo.poll = function(){
   bdo.log("Polling…");
-  $.get(bdo.host + 'poll',function(href){
+  $.get(bdo.host + 'poll' + '?reload=' + Math.random(),function(href){
     bdo.refresh(href);
     bdo.poll();
   });
