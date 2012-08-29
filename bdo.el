@@ -1,5 +1,4 @@
-;;; bdo.el
-;;; Do things to a browser page from Emacs. BETA!
+;;; bdo.el --- Do things to a browser page from Emacs. BETA!
 
 ;; Copyright (c) 2012 Chris Done. All rights reserved.
 
@@ -20,7 +19,9 @@
 ;; OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT
 ;; OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 ;; SUCH DAMAGE.
-;; 
+;;
+;;; Commentary:
+;;
 ;; Usage:
 ;; 
 ;; (add-to-list 'load-path "/the/path/to/bdo")
@@ -35,6 +36,8 @@
 ;;     (save-buffer))
 ;;   (bdo-refresh))
 ;; 
+
+;;; Code:
 
 (require 'cl)
 
