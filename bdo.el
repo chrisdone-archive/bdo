@@ -23,11 +23,11 @@
 ;;; Commentary:
 ;;
 ;; Usage:
-;; 
+;;
 ;; (add-to-list 'load-path "/the/path/to/bdo")
-;; 
+;;
 ;; Optional keybinding:
-;; 
+;;
 ;; (define-key css-mode-map (kbd "C-x C-s") 'css-refresh)
 ;; (defun css-refresh ()
 ;;   "Refresh the current CSS file."
@@ -35,7 +35,7 @@
 ;;   (when (buffer-modified-p)
 ;;     (save-buffer))
 ;;   (bdo-refresh))
-;; 
+;;
 
 ;;; Code:
 
@@ -127,6 +127,13 @@ current buffer, tries to get from 'load-path."
         (setq bdo-client id))
     (error "There are no current clients!")))
 
+(defun bdo-clear-clients ()
+  "Clear the clients."
+  (interactive)
+  (setq bdo--clients nil)
+  (setq bdo-link nil)
+  (message "Clients cleared."))
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Private functions
 
@@ -201,7 +208,7 @@ current buffer, tries to get from 'load-path."
 (defun bdo--get-js (host)
   "Get the JS code to send to the client."
   (if (bdo--find-js-file)
-      (with-temp-buffer 
+      (with-temp-buffer
         (insert-file-contents (bdo--find-js-file))
         (goto-char (point-max))
         (insert (format "bdo.host = %S;\n" (format "http://%s/" host))
