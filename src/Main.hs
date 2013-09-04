@@ -1,7 +1,8 @@
 {-# LANGUAGE ViewPatterns #-}
 {-# LANGUAGE OverloadedStrings #-}
 
--- | Main bdo server. Accepts polling requests and such.
+-- | Main bdo server. Accepts polling requests and such. Possibly the
+-- worst code I've ever written. I want a prize.
 
 module Main where
 
@@ -18,6 +19,7 @@ import qualified Data.Text.Lazy.IO as T
 import           Http
 import           Network
 import           Network.URL
+import           Paths_bdo
 import           Prelude hiding (catch)
 import           System.Environment
 import           System.IO
@@ -79,9 +81,12 @@ main = do
       ["update",client,link] -> update client link
       ["update"] -> updateCurrentClient
       ["set",client,link] -> do
-        modifyMVar_ currentClient (const (return (Just (client,link))))
-        printCurrentClient
-      _ -> T.putStrLn $ "Unknown command. Commands: clients, update <client> <stylesheet>"
+        clients <- readMVar clients
+        case lookup client clients of
+          Nothing -> T.putStr "No such client"
+          Just{} -> do modifyMVar_ currentClient (const (return (Just (client,link))))
+                       printCurrentClient
+      _ -> T.putStrLn $ "Unknown command. Commands: clients, update <client> <stylesheet>, set <client> <stylesheet> (sets the current client/stylesheet), update (no args, uses current client)"
 
 
 dispatch :: Handle -> MVar [(Text,([Text],Maybe Handle))] -> Text -> URL -> [Text] -> IO ()
@@ -127,7 +132,7 @@ logLn = T.hPutStrLn stderr
 
 getJs :: Text -> IO Text
 getJs host = do
-  js <- T.readFile "bdo.js"
+  js <- getDataFileName "bdo.js" >>= T.readFile
   return $
     T.unlines [js
               ,"bdo.host = " <> T.pack (show ("http://" <> host <> "/" :: Text)) <> ";"
