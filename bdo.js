@@ -38,36 +38,17 @@ bdo.sendLinks = function(){
       hrefs.push($(this).attr('href'));
     }
   });
-  $.post(bdo.host + 'links',{links:bdo.sexp(hrefs)},function(response){
+  $.post(bdo.host + 'links',{links:hrefs.join('\n')},function(response){
     bdo.log("Posted links: " + JSON.stringify(hrefs));
     bdo.log("Links reply: %s",response);
   });
 };
 
 /*******************************************************************************
- * Sexpify some JSONable value.
- */
-bdo.sexp = function(value){
-  if(value == null || value == undefined) throw "Won't convert null/undefined.";
-  if(value.constructor == Array){
-    var els = [];
-    for(var i = 0; i < value.length; i++)
-      els.push(bdo.sexp(value[i]));
-    return "(" + els.join(" ") + ")";
-  } else if(typeof value == 'string') {
-    return JSON.stringify(value);
-  } else if(typeof value == 'number') {
-    return JSON.stringify(value);
-  } else {
-    throw "Unable to encode to sexp: " + value;
-  }
-};
-
-/*******************************************************************************
  * Poll for link element updates, given by the href, from Emacs.
  */
 bdo.poll = function(){
-  bdo.log("Polling…");
+  bdo.log("Polling...");
   $.get(bdo.host + 'poll' + '?reload=' + Math.random(),function(href){
     bdo.refresh(href);
     bdo.poll();
@@ -78,7 +59,7 @@ bdo.poll = function(){
  * Refresh the link with the given `href' attribute.
  */
 bdo.refresh = function(href){
-  bdo.log("Refreshing “%s”…",href);
+  bdo.log("Refreshing '%s'...",href);
   $('link').each(function(){
     if($(this).attr('href').indexOf(href) == 0) {
       // I don't know of any other way to “refresh” an element while

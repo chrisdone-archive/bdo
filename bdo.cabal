@@ -1,0 +1,17 @@
+name:                bdo
+version:             0.1.0.0
+synopsis:            Update CSS in the browser without reloading the page.
+description:         Update CSS in the browser without reloading the page.
+license:             BSD3
+license-file:        LICENSE
+author:              Chris Done
+maintainer:          chrisdone@gmail.com
+category:            Web
+build-type:          Simple
+cabal-version:       >=1.8
+
+executable bdo
+  main-is:          Main.hs
+  build-depends:    base >= 4 && < 5,
+                    url, text, network, aeson
+  hs-source-dirs: src

@@ -158,7 +158,7 @@ current buffer, tries to get from 'load-path."
     (let ((cmd (match-string 2 data))
           (referer (bdo--get-header data "Referer")))
       (cond
-       ((string= cmd "bdo")
+       ((string-match "^bdo" cmd)
         (bdo--reply-js process (bdo--get-js (bdo--get-header data "Host")))
         (if (bdo--find-client referer)
             (message "Client re-connected: %s" referer)
@@ -167,11 +167,12 @@ current buffer, tries to get from 'load-path."
        ((string-match "^poll" cmd)
         (let ((client (bdo--find-client referer)))
           (setf (bdo-client-process client) process)))
-       ((string= cmd "links")
+       ((string-match "^links" cmd)
         (let ((client (bdo--find-client referer)))
           (bdo--update-links client data)
           (bdo--reply-plain process "Links updated.")))
-       (t (bdo--reply-plain process (format "Unknown command: %S" cmd)))))))
+       (t
+        (bdo--reply-plain process (format "Unknown command: %S" cmd)))))))
 
 (defun bdo--find-client (referer)
   "Find a client by the given referer."
@@ -234,14 +235,14 @@ current buffer, tries to get from 'load-path."
                                   data)
                     (match-string 1 data))))
     (if (not value)
-        (error "Unable to get header %s from client, request was: %S." %s data)
+        (message "Unable to get header %s from client, request was: %S." header data)
       value)))
 
 (defun bdo--update-links (client data)
   "Get the links from the request and update our internal list."
   (let ((post-data (bdo--post-data data)))
     (let ((links (and (string-match "^links=\\(.+\\)" post-data)
-                      (read (match-string 1 post-data)))))
+                      (split-string (match-string 1 post-data) "\n"))))
       (setf (bdo-client-links client) links))))
 
 (defun bdo--post-data (data)
