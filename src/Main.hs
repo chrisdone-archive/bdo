@@ -32,62 +32,66 @@ main = do
   clients <- newMVar []
   listener <- listenOn (PortNumber (fromIntegral (read listenPort :: Int)))
   currentClient <- newMVar Nothing
-  let printCurrentClient = do
+  let printCurrentClient h = do
          cur <- readMVar currentClient
          case cur of
-           Nothing -> T.putStrLn "No current client"
-           Just (client,link) -> T.putStrLn $ "Current client is: " <> client <> ", updating link: " <> link
-      update client link = do
+           Nothing -> T.hPutStrLn h "No current client"
+           Just (client,link) -> T.hPutStrLn h $ "Current client is: " <> client <> ", updating link: " <> link
+      update h client link = do
         clients <- readMVar clients
         case lookup client clients of
-          Nothing -> T.putStrLn "Unknown client. To see list of clients: clients"
-          Just (links,Just h)
-            | link `elem` links -> do T.putStrLn "Sending link update ..."
-                                      reply h [] link
-                                      hClose h
-            | otherwise -> T.putStrLn "That link doesn't exist in the page. To see the page's links: clients"
-          _ -> T.putStrLn "That client isn't connected right now."
-      updateCurrentClient = do client <- readMVar currentClient
-                               case client of
-                                 Nothing -> hPutStr stderr "No current client!"
-                                 Just (client,link) -> update client link
+          Nothing -> T.hPutStrLn h "Unknown client. To see list of clients: clients"
+          Just (links,Just h')
+            | link `elem` links -> do T.hPutStrLn h "Sending link update ..."
+                                      reply h' [] link
+                                      hClose h'
+            | otherwise -> T.hPutStrLn h "That link doesn't exist in the page. To see the page's links: clients"
+          _ -> T.hPutStrLn h "That client isn't connected right now."
+      updateCurrentClient h = do client <- readMVar currentClient
+                                 case client of
+                                   Nothing -> hPutStrLn h "No current client!"
+                                   Just (client,link) -> update h client link
+      printClients h = do clients <- readMVar clients
+                          mapM_ (\(referer,(links,_)) -> do
+                           T.hPutStrLn h (referer <> ":\n" <>
+                                          T.intercalate "\n" (map ("  "<>) links) <>
+                                          "\n"))
+                            clients
+                          printCurrentClient h
+      setClient h client link = do
+        clients <- readMVar clients
+        case lookup client clients of
+          Nothing -> T.hPutStrLn h "No such client"
+          Just{} -> do modifyMVar_ currentClient (const (return (Just (client,link))))
+                       printCurrentClient h
   void $ forkIO $ flip finally (sClose listener) $ forever $ do
     (h,_,_) <- accept listener
+    let closing m = finally m (hClose h)
     forkIO $ do
       hSetBuffering h NoBuffering
       headers <- getHeaders h
       case headers of
-        ["update"] -> do updateCurrentClient
-                         hClose h
-        [T.words -> [(importURL . T.unpack) -> Just client,(importURL . T.unpack) -> Just link]] -> do
+        ["update"] -> closing (updateCurrentClient h)
+        [T.words -> ["update",client,link]] -> update h client link
+        ["clients"] -> closing $ printClients h
+        [T.words -> ["set",client,link]] -> closing $ setClient h client link
+        [T.words -> [(importURL . T.unpack) -> Just client,(importURL . T.unpack) -> Just link]] -> closing $ do
          T.putStrLn "Updating from socket request."
-         update (T.pack (exportURL client))
-                (T.pack (exportURL link))
-         hClose h
+         update h (T.pack (exportURL client))
+                  (T.pack (exportURL link))
         _ -> do
          case requestMethod headers of
            Just (method,url) -> dispatch h clients method url headers
-           _ -> do logLn $ "Request ignored: " <> T.pack (show headers)
-                   hClose h
+           _ -> closing $ T.putStrLn $ "Request ignored: " <> T.pack (show headers)
+
   forever $ do
     line <- T.getLine
     case T.words line of
-      ["clients"] -> do clients <- readMVar clients
-                        mapM_ (\(referer,(links,_)) ->
-                         T.putStr (referer <> ":\n" <> T.unlines (map ("  "<>) links)))
-                           clients
-                        when (null clients) $ T.putStrLn "No clients"
-                        printCurrentClient
-      ["update",client,link] -> update client link
-      ["update"] -> updateCurrentClient
-      ["set",client,link] -> do
-        clients <- readMVar clients
-        case lookup client clients of
-          Nothing -> T.putStr "No such client"
-          Just{} -> do modifyMVar_ currentClient (const (return (Just (client,link))))
-                       printCurrentClient
+      ["clients"] -> printClients stdout
+      ["update",client,link] -> update stdout client link
+      ["update"] -> updateCurrentClient stdout
+      ["set",client,link] -> setClient stdout client link
       _ -> T.putStrLn $ "Unknown command. Commands: clients, update <client> <stylesheet>, set <client> <stylesheet> (sets the current client/stylesheet), update (no args, uses current client)"
-
 
 dispatch :: Handle -> MVar [(Text,([Text],Maybe Handle))] -> Text -> URL -> [Text] -> IO ()
 dispatch h cs method url headers = do
