@@ -1,5 +1,5 @@
 name:                bdo
-version:             0.1.0.0
+version:             1.0.0
 synopsis:            Update CSS in the browser without reloading the page.
 description:         Update CSS in the browser without reloading the page.
 license:             BSD3
@@ -11,8 +11,16 @@ build-type:          Simple
 cabal-version:       >=1.8
 data-files: bdo.js
 
-executable bdo
-  main-is:          Main.hs
+library
+  exposed-modules:  Bdo
+  other-modules:    Http
   build-depends:    base >= 4 && < 5,
                     url, text, network, aeson
-  hs-source-dirs: src
+  hs-source-dirs:   src
+
+executable bdo
+  main-is:          Main.hs
+  other-modules:    Bdo, Http
+  build-depends:    base >= 4 && < 5,
+                    url, text, network, aeson
+  hs-source-dirs:   src
