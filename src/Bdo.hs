@@ -43,8 +43,11 @@ startServer listenPort = do
             | link `elem` links -> do T.hPutStrLn h "Sending link update ..."
                                       reply h' [] link
                                       hClose h'
-            | otherwise -> T.hPutStrLn h "That link doesn't exist in the page. To see the page's links: clients"
-          _ -> T.hPutStrLn h "That client isn't connected right now."
+            | otherwise -> do
+              T.hPutStrLn h "That link doesn't (didn't?) exist in the page. Sending anyway ..."
+              reply h' [] link
+              hClose h'
+          _ -> do T.hPutStrLn h "That client isn't connected right now."
       updateCurrentClient h = do client <- readMVar currentClient
                                  case client of
                                    Nothing -> hPutStrLn h "No current client!"

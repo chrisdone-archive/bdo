@@ -1,5 +1,5 @@
 name:                bdo
-version:             1.0.0
+version:             1.0.1
 synopsis:            Update CSS in the browser without reloading the page.
 description:         Update CSS in the browser without reloading the page.
 license:             BSD3
