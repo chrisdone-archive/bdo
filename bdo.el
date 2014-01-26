@@ -47,3 +47,5 @@
   (shell-command-to-string (format "echo %s | nc localhost %d"
                                    command
                                    bdo-port)))
+
+(provide 'bdo)
